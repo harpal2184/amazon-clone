@@ -1,0 +1,31 @@
+{
+  "name": "ecommerce",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "Harpal",
+  "license": "ISC",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "ejs": "^2.5.1",
+    "ejs-mate": "^2.3.0",
+    "express-flash": "0.0.2",
+    "express-session": "^1.14.0",
+    "mongoose": "^4.5.7",
+    "morgan": "^1.7.0",
+    "passport": "^0.3.2"
+  }
+}
