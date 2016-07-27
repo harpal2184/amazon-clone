@@ -1,18 +1,41 @@
+//********************************************//
+//***************express module***************//
 var express = require('express');
 var app = express();
+//**********************************************//
+//***********morgan to keep log of user action**//
 var morgan = require('morgan');
+//**bodyParser to read data from user *******//
 var bodyParser = require('body-parser');
+//*****connect mongodb and nodejs***********//
 var mongoose = require('mongoose');
+//********bcrypt to encrypt password*******//
 var bcrypt = require('bcrypt-nodejs');
+//***********USer is model created in models**//
 var User = require('./models/user');
+//*************templat engine****************//
 var ejs = require('ejs');
+//***********extenstion to ejs ************//
 var ejsMate = require('ejs-mate');
+//**manage user session*********************//
 var session = require('express-session');
+//********store cookie in browser*********//
 var cookieParser = require('cookie-parser');
+//******to display error and success msgs***//
 var flash = require('express-flash');
-
+//*******valuable data******************//
+var secret = require('./config/secret');
+//**********store session on server side*******//
+var MongoStore = require('connect-mongo/es5')(session);
+//**authentication modeule***************//
+var passport = require('passport');
+//**********config file*****************//
+var passportConfig = require('./config/passport');
+//***********body parser to accept data in json and urlencoded form//
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
+//*******************************************************//
+//**********node js engine******************************//
 app.engine('ejs',ejsMate);
 app.set('view engine','ejs');
 app.use(express.static(__dirname+'/public'));
@@ -21,50 +44,26 @@ app.use(cookieParser());
 app.use(session({
   resave : true,
   saveUninitialized: true,
-  secret: "Harpal@$@!#@"
+  secret: secret.secretKey,
+  store: new MongoStore({url: secret.database, autoReconnect:true})
 }));
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 //******************************************************//
 //****************Mongodb connection*********************//
-mongoose.connect('mongodb://root:abc123@ds035503.mlab.com:35503/ecommerce',function(err){
+mongoose.connect(secret.database,function(err){
   if(err) {
     console.log(err);
   }else{
     console.log("connected to mongodb");
   }
 });
-
 //****************************************************//
 //***************user routes*************************//
 
-
-app.get('/signup',function(req,res){
-  res.render('accounts/signup',{
-    errors:req.flash('errors')
-  });
-});
-app.post('/signup',function(req,res, next){
-  var user = new User();
-  user.profile.name = req.body.name;
-  user.password= req.body.password;
-  user.email=req.body.email;
-
-  User.findOne({ email: req.body.email}, function(err, existingUser){
-    if(existingUser){
-      req.flash('errors',"Account with this email already exist");
-    //  console.log(req.body.email + " is already exist");
-      return res.redirect('/signup');
-    }else{
-      user.save(function(err){
-        if(err) return next(err);
-        return res.redirect('/');
-      //  res.json("new sucessfully created user");
-      });
-    }
-  });
-
-});
-
+var userRoute = require('./routes/user');
+app.use(userRoute);
 //*************************************************************//
 //*********************Main route******************************//
 
@@ -74,7 +73,7 @@ app.get('/',function(req,res){
 
 //*************************************************************//
 //*********************run Server on port 3000****************************//
-app.listen(3000,function(err){
+app.listen(secret.port,function(err){
   if(err) throw err;
-  console.log('server running on 3000');
+  console.log('server running on '+ secret.port);
 });
