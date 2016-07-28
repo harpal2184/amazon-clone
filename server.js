@@ -50,6 +50,13 @@ app.use(session({
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
+//************************************************************//
+//****middleware where every route can have user object *****//
+app.use(function(req,res,next){
+  res.locals.user=req.user;
+  next();
+});
+
 //******************************************************//
 //****************Mongodb connection*********************//
 mongoose.connect(secret.database,function(err){
@@ -67,9 +74,10 @@ app.use(userRoute);
 //*************************************************************//
 //*********************Main route******************************//
 
-app.get('/',function(req,res){
-  res.render('main/home');
-});
+var mainRoute = require('./routes/main');
+app.use(mainRoute);
+
+
 
 //*************************************************************//
 //*********************run Server on port 3000****************************//
