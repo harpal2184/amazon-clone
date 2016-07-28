@@ -11,8 +11,9 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 //********bcrypt to encrypt password*******//
 var bcrypt = require('bcrypt-nodejs');
-//***********USer is model created in models**//
+//*********** model created in models**//
 var User = require('./models/user');
+var Category = require('/models/category');
 //*************templat engine****************//
 var ejs = require('ejs');
 //***********extenstion to ejs ************//
@@ -56,6 +57,15 @@ app.use(function(req,res,next){
   res.locals.user=req.user;
   next();
 });
+//********************************//
+//***middleware for category******//
+app.use(function(req,res,next){
+  Category.find({},function(err,categories){
+    if(err) return next(err);
+      res.locals.categories = categories;
+      next();
+  });
+});
 
 //******************************************************//
 //****************Mongodb connection*********************//
@@ -77,7 +87,10 @@ app.use(userRoute);
 var mainRoute = require('./routes/main');
 app.use(mainRoute);
 
-
+//***************************************************************//
+//********************admin route*******************************//
+var adminRoute = require('./routes/admin');
+app.use(adminRoute);
 
 //*************************************************************//
 //*********************run Server on port 3000****************************//
